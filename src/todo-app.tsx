@@ -6,29 +6,81 @@ interface Todo {
   completed: boolean;
 }
 
+// Simple storage using a module-level variable that persists during the session
+let persistedTodos: Todo[] = [];
+let hasLoadedFromLocalStorage = false;
+
 const TodoApp = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [getInput] = useState<any>({ currentValue: "" });
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
+  const [loaded, setLoaded] = useState(false);
+
+  // Load todos from localStorage on mount
+  const loadTodos = () => {
+    if (!hasLoadedFromLocalStorage) {
+      try {
+        const saved = localStorage.getItem('todos');
+        if (saved) {
+          persistedTodos = JSON.parse(saved);
+          setTodos(persistedTodos);
+        }
+      } catch (error) {
+        console.log('Could not load todos');
+      }
+      hasLoadedFromLocalStorage = true;
+    } else {
+      setTodos(persistedTodos);
+    }
+    setLoaded(true);
+  };
+
+  // Save todos to localStorage
+  const saveTodos = (newTodos: Todo[]) => {
+    persistedTodos = newTodos;
+    try {
+      localStorage.setItem('todos', JSON.stringify(newTodos));
+    } catch (error) {
+      console.error('Failed to save todos:', error);
+    }
+  };
+
+  // Load on first render
+  if (!loaded()) {
+    loadTodos();
+  }
 
   const handleAdd = () => {
     const text = (getInput as any).currentValue?.trim() || "";
     if (!text) return;
-    setTodos([...todos(), { id: Date.now(), text, completed: false }]);
+    const newTodos = [...todos(), { id: Date.now(), text, completed: false }];
+    setTodos(newTodos);
+    saveTodos(newTodos);
     (getInput as any).currentValue = "";
     const inputEl = (getInput as any).ref;
     if (inputEl) inputEl.value = "";
   };
 
-  const handleToggle = (id: number) =>
-    setTodos(
-      todos().map((t) =>
-        t.id === id ? { ...t, completed: !t.completed } : t
-      )
+  const handleToggle = (id: number) => {
+    const newTodos = todos().map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
     );
+    setTodos(newTodos);
+    saveTodos(newTodos);
+  };
 
-  const handleDelete = (id: number) =>
-    setTodos(todos().filter((t) => t.id !== id));
+  const handleDelete = (id: number) => {
+    const newTodos = todos().filter((t) => t.id !== id);
+    setTodos(newTodos);
+    saveTodos(newTodos);
+  };
+
+  const handleClearAll = () => {
+    if (confirm('Are you sure you want to delete all todos?')) {
+      setTodos([]);
+      saveTodos([]);
+    }
+  };
 
   const filteredTodos =
     filter() === "active"
@@ -77,6 +129,9 @@ const TodoApp = () => {
           defaultValue=""
           ref={(el: any) => ((getInput as any).ref = el)}
           onInput={(e: any) => ((getInput as any).currentValue = e.target.value)}
+          onKeyPress={(e: any) => {
+            if (e.key === 'Enter') handleAdd();
+          }}
           placeholder="Add a task..."
           style={{
             flex: 1,
@@ -127,6 +182,7 @@ const TodoApp = () => {
                 borderRadius: "6px",
                 padding: "4px 10px",
                 cursor: "pointer",
+                fontSize: "12px",
               }}
             >
               {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -190,6 +246,24 @@ const TodoApp = () => {
           ))
         )}
       </ul>
+      {todos().length > 0 && (
+        <div style={{ marginTop: "16px", textAlign: "center" }}>
+          <button
+            onClick={handleClearAll}
+            style={{
+              background: "#374151",
+              color: "#9ca3af",
+              border: "1px solid #4b5563",
+              borderRadius: "6px",
+              padding: "6px 12px",
+              fontSize: "12px",
+              cursor: "pointer",
+            }}
+          >
+            Clear All
+          </button>
+        </div>
+      )}
     </div>
   );
 };
