@@ -16,6 +16,10 @@ const PALETTE = [
   "#FFD97D",
   "#FF9B85",
   "#3B3C8A",
+  "#6A4C93",
+  "#1c3442ff",
+  "#ed3bedff",
+  "#888888ff",
 ];
 
 const Chart = ({ data, type, width = 600, height = 350 }: ChartProps) => {
