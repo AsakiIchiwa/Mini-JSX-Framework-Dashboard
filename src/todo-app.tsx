@@ -6,7 +6,6 @@ interface Todo {
   completed: boolean;
 }
 
-// Simple storage using a module-level variable that persists during the session
 let persistedTodos: Todo[] = [];
 let hasLoadedFromLocalStorage = false;
 
@@ -16,7 +15,6 @@ const TodoApp = () => {
   const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const [loaded, setLoaded] = useState(false);
 
-  // Load todos from localStorage on mount
   const loadTodos = () => {
     if (!hasLoadedFromLocalStorage) {
       try {
@@ -35,7 +33,6 @@ const TodoApp = () => {
     setLoaded(true);
   };
 
-  // Save todos to localStorage
   const saveTodos = (newTodos: Todo[]) => {
     persistedTodos = newTodos;
     try {
@@ -45,7 +42,6 @@ const TodoApp = () => {
     }
   };
 
-  // Load on first render
   if (!loaded()) {
     loadTodos();
   }
@@ -113,10 +109,9 @@ const TodoApp = () => {
           textAlign: "center",
         }}
       >
-        🧾 Todo Tracker (Dark)
+        🧾 Todo Tracker
       </h2>
 
-      {/* input + button */}
       <div
         style={{
           display: "flex",

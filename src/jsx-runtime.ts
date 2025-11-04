@@ -1,4 +1,3 @@
-// --- MINI JSX RUNTIME v3.3 (stable) ---
 import { resetHooks, runEffects } from "./hooks";
 
 export interface VNode {
