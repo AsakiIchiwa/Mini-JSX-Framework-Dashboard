@@ -45,6 +45,10 @@ const Dashboard = () => {
         <Card title="Line Chart">
           <Chart data={data} type="line" />
         </Card>
+
+        <Card title="Pie Chart">
+          <Chart data={data} type="pie" />
+        </Card>
       </div>
 
       <div style={{ textAlign: "center" }}>
